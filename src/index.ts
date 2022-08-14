@@ -19,7 +19,11 @@ io.on("connect", (socket) => {
     // extract some data from socket connection
     const token = socket.handshake.auth.token as string;
     const username = `<socket-id:${socket.id}>`
-    const lobby = io.to("lobby-name-here");
+
+    // join group and save it for later
+    const lobbyId = "lobby-name-here";
+    socket.join(lobbyId);
+    const lobby = io.to(lobbyId);
 
     console.log(`A user connected ${username}`);
     if (token) console.log("There is even a token!", token);
@@ -31,11 +35,12 @@ io.on("connect", (socket) => {
 
     // relay a string message to all sockets in the same group (there is currently only one group) "lobby-name-here"
     socket.on("relay", (msg: string) => {
-        lobby.emit("relay", msg);
+        console.log(`A user relayed message: "${msg}"`);
+        lobby.emit("relay-received", msg);
     });
 });
 
 // start http server on preset port
 httpServer.listen(port, () => {
-    console.log(`HTTP server started on port <${port}>`);
+    console.log(`HTTP server started on localhost:${port}`);
 });
